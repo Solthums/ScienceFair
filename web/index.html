@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="http://cdn.firebase.com/v0/firebase.js"></script>
+		<script type="text/javascript" src="morris.js"></script>
+		<script type="text/javascript" src="raphael.js"></script>
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+		<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+		<style>
+		
+		</style>
+	</head>
+	<body>
+		<h1 id="bpm"></h1>
+		<div id="graph">
+		</div>
+
+		<script type="text/javascript">
+			$(document).ready(function() {
+
+				var fb = new Firebase('https://solomon.firebaseio.com');
+				var update = function() {
+					fb.once('value', function(database) {
+						$('#graph').empty();
+						// Temporary data
+						var forceData = [];
+						var t = 0;
+						var bpm = 60;
+						// Looping through database
+						$.each(database.val(), function(id, value) {
+
+							// Some code to determine BPM
+
+							bpm = value / 10;
+
+							forceData.push({
+								time: t,
+								force: value
+							});
+							t = t + 1;
+						});
+						// Draw the line graph
+						Morris.Line({
+					        element: 'graph',
+					        data: forceData,
+					        xkey: 'time',
+					        ykeys: ['force'],
+					        labels: ['Breath monitor force.'],
+					        hideHover: 'auto',
+					        resize: true
+					    });
+					    // Fill in some html
+					    $('#bpm').text(bpm);
+					});
+					setTimeout(update, 2000);
+				};
+				update();
+			});
+		</script>
+	</body>
+</html>
